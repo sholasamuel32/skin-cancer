@@ -4,6 +4,8 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 import numpy as np
+import os
+import gdown
 
 # =========================
 # CONFIG
@@ -11,9 +13,8 @@ import numpy as np
 st.set_page_config(page_title="Skin Cancer Detector", layout="centered")
 
 # =========================
-# CLASS LABELS (EDIT IF NEEDED)
+# CLASS LABELS
 # =========================
-# Make sure this matches your training label_map
 label_map = {
     0: "Melanoma",
     1: "Nevus",
@@ -32,14 +33,25 @@ num_classes = len(label_map)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # =========================
-# LOAD MODEL
+# LOAD MODEL (FROM GOOGLE DRIVE)
 # =========================
 @st.cache_resource
 def load_model():
+    model_path = "skin_cancer_model.pth"
+
+    # 🔽 Google Drive direct download link
+    url = "https://drive.google.com/uc?id=1GDD2iC0qD7Md_srGr5HXqUDQpu6de0-X"
+
+    # 🔽 Download model if not already present
+    if not os.path.exists(model_path):
+        with st.spinner("Downloading model... please wait ⏳"):
+            gdown.download(url, model_path, quiet=False)
+
+    # 🔽 Load model
     model = models.resnet50(pretrained=False)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
 
-    model.load_state_dict(torch.load("skin_cancer_model.pth", map_location=device))
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     model.eval()
 
@@ -82,9 +94,9 @@ if uploaded_file is not None:
     confidence_score = confidence.item() * 100
 
     st.success(f"Prediction: {predicted_class}")
-    # st.info(f"Confidence: {confidence_score:.2f}%")
+    st.info(f"Confidence: {confidence_score:.2f}%")
 
-    # Show probability breakdown
-    # st.subheader("Class Probabilities")
-    # for i in range(num_classes):
-    #     st.write(f"{label_map[i]}: {probabilities[0][i].item()*100:.2f}%")
+    # Optional breakdown
+    with st.expander("See all class probabilities"):
+        for i in range(num_classes):
+            st.write(f"{label_map[i]}: {probabilities[0][i].item()*100:.2f}%")
