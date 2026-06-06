@@ -3,9 +3,4 @@ torch==2.2.0+cpu --index-url https://download.pytorch.org/whl/cpu
 torchvision==0.17.0+cpu --index-url https://download.pytorch.org/whl/cpu
 pillow
 numpy
-pandas
-scikit-learn
-matplotlib
-seaborn
-tqdm
-huggingface_hub 
+huggingface_hub
