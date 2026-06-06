@@ -4,8 +4,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 import numpy as np
-import os
-import gdown
+from huggingface_hub import hf_hub_download # 1. ADD THIS IMPORT
 
 # =========================
 # CONFIG
@@ -13,7 +12,7 @@ import gdown
 st.set_page_config(page_title="Skin Cancer Detector", layout="centered")
 
 # =========================
-# CLASS LABELS
+# CLASS LABELS (EDIT IF NEEDED)
 # =========================
 label_map = {
     0: "Melanoma",
@@ -28,28 +27,24 @@ label_map = {
 num_classes = len(label_map)
 
 # =========================
-# DEVICE
+# DEVICE - FORCE CPU FOR STREAMLIT CLOUD
 # =========================
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu") # 2. CHANGE THIS - no cuda on free tier
 
 # =========================
-# LOAD MODEL (FROM GOOGLE DRIVE)
+# LOAD MODEL
 # =========================
 @st.cache_resource
 def load_model():
-    model_path = "skin_cancer_model.pth"
+    model = models.resnet50(weights=None) # 3. pretrained=False is deprecated, use weights=None
 
-    # 🔽 Google Drive direct download link
-    url = "https://drive.google.com/uc?id=1GDD2iC0qD7Md_srGr5HXqUDQpu6de0-X"
-
-    # 🔽 Download model if not already present
-    if not os.path.exists(model_path):
-        with st.spinner("Downloading model... please wait ⏳"):
-            gdown.download(url, model_path, quiet=False)
-
-    # 🔽 Load model
-    model = models.resnet50(pretrained=False)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
+
+    # 4. DOWNLOAD MODEL FROM HF HUB INSTEAD OF LOCAL FILE
+    model_path = hf_hub_download(
+        repo_id="your-username/skin-cancer-model", # 5. CHANGE THIS to your HF username/repo
+        filename="skin_cancer_model.pth"
+    )
 
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
@@ -72,6 +67,7 @@ transform = transforms.Compose([
 # =========================
 st.title("🧠 Skin Cancer Detection System")
 st.write("Upload a dermoscopic image to predict skin condition")
+st.warning("⚠️ This is not medical advice. Consult a dermatologist for diagnosis.")
 
 uploaded_file = st.file_uploader("Upload Image", type=["jpg", "png", "jpeg"])
 
@@ -96,7 +92,7 @@ if uploaded_file is not None:
     st.success(f"Prediction: {predicted_class}")
     st.info(f"Confidence: {confidence_score:.2f}%")
 
-    # Optional breakdown
+    # Show probability breakdown
     with st.expander("See all class probabilities"):
         for i in range(num_classes):
             st.write(f"{label_map[i]}: {probabilities[0][i].item()*100:.2f}%")
