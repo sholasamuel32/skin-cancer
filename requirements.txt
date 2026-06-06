@@ -1,6 +1,6 @@
 streamlit
-torch==2.2.0+cpu --index-url https://download.pytorch.org/whl/cpu
-torchvision==0.17.0+cpu --index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
 pillow
 numpy
 huggingface_hub
