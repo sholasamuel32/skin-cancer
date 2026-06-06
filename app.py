@@ -67,7 +67,7 @@ transform = transforms.Compose([
 # =========================
 st.title("🧠 Skin Cancer Detection System")
 st.write("Upload a dermoscopic image to predict skin condition")
-st.warning("⚠️ This is not medical advice. Consult a dermatologist for diagnosis.")
+#st.warning("⚠️ This is not medical advice. Consult a dermatologist for diagnosis.")
 
 uploaded_file = st.file_uploader("Upload Image", type=["jpg", "png", "jpeg"])
 
