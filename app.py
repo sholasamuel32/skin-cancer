@@ -42,7 +42,7 @@ def load_model():
 
     # 4. DOWNLOAD MODEL FROM HF HUB INSTEAD OF LOCAL FILE
     model_path = hf_hub_download(
-        repo_id="your-username/skin-cancer-model", # 5. CHANGE THIS to your HF username/repo
+        repo_id="sholasamuel32/skin", # 5. CHANGE THIS to your HF username/repo
         filename="skin_cancer_model.pth"
     )
 
